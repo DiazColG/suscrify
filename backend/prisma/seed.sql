@@ -1,0 +1,22 @@
+-- Insertar suscripciones predefinidas populares
+INSERT INTO PreloadedSubscription (name, category, logoUrl) VALUES
+('Netflix', 'Entretenimiento', 'https://logo.clearbit.com/netflix.com'),
+('Spotify', 'Música', 'https://logo.clearbit.com/spotify.com'),
+('Adobe Creative Cloud', 'Desarrollo', 'https://logo.clearbit.com/adobe.com'),
+('Microsoft 365', 'Productividad', 'https://logo.clearbit.com/microsoft.com'),
+('Google Drive', 'Almacenamiento', 'https://logo.clearbit.com/google.com'),
+('Dropbox', 'Almacenamiento', 'https://logo.clearbit.com/dropbox.com'),
+('Disney+', 'Entretenimiento', 'https://logo.clearbit.com/disneyplus.com'),
+('Amazon Prime', 'Entretenimiento', 'https://logo.clearbit.com/amazon.com'),
+('YouTube Premium', 'Video', 'https://logo.clearbit.com/youtube.com'),
+('Slack', 'Comunicación', 'https://logo.clearbit.com/slack.com'),
+('Notion', 'Productividad', 'https://logo.clearbit.com/notion.so'),
+('Figma', 'Desarrollo', 'https://logo.clearbit.com/figma.com'),
+('GitHub Pro', 'Desarrollo', 'https://logo.clearbit.com/github.com'),
+('Canva Pro', 'Desarrollo', 'https://logo.clearbit.com/canva.com'),
+('HBO Max', 'Entretenimiento', 'https://logo.clearbit.com/hbomax.com'),
+('Apple Music', 'Música', 'https://logo.clearbit.com/apple.com'),
+('iCloud', 'Almacenamiento', 'https://logo.clearbit.com/icloud.com'),
+('Zoom Pro', 'Comunicación', 'https://logo.clearbit.com/zoom.us'),
+('ChatGPT Plus', 'Productividad', 'https://logo.clearbit.com/openai.com'),
+('Midjourney', 'Desarrollo', 'https://logo.clearbit.com/midjourney.com');

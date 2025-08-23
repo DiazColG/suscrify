@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  planStatus    String   @default("free")
+  createdAt     DateTime @default(now())
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  currency    String   @default("USD")
+  category    String   @default("Other")
+  renewalDate DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+}
+
+model PreloadedSubscription {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  category String
+  logoUrl  String?
+}
+
+model ExchangeRate {
+  id           Int      @id @default(autoincrement())
+  fromCurrency String   @unique
+  toCurrency   String   @default("USD") // USD como moneda base
+  rate         Float    // Cuántos USD vale 1 unidad de fromCurrency
+  lastUpdated  DateTime @default(now())
+  
+  @@map("exchange_rates")
+}
