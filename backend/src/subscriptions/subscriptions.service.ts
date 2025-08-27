@@ -1,39 +1,37 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { CsvService } from '../common/csv/csv.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private csvService: CsvService) {}
 
   async create(createSubscriptionDto: CreateSubscriptionDto, userId: string) {
-    return this.prisma.subscription.create({
-      data: {
-        ...createSubscriptionDto,
-        renewalDate: new Date(createSubscriptionDto.renewalDate),
-        userId,
-      },
+    return this.csvService.create('subscriptions', {
+      ...createSubscriptionDto,
+      renewalDate: new Date(createSubscriptionDto.renewalDate).toISOString(),
+      userId: Number(userId),
     });
   }
 
   async findAll(userId: string) {
-    return this.prisma.subscription.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
+    const subscriptions = await this.csvService.findByField('subscriptions', 'userId', Number(userId));
+    return subscriptions.sort((a, b) => {
+      const dateA = new Date(a.createdAt as string);
+      const dateB = new Date(b.createdAt as string);
+      return dateB.getTime() - dateA.getTime();
     });
   }
 
   async findOne(id: string, userId: string) {
-    const subscription = await this.prisma.subscription.findUnique({
-      where: { id },
-    });
+    const subscription = await this.csvService.findById('subscriptions', Number(id));
 
     if (!subscription) {
       throw new NotFoundException('Subscription not found');
     }
 
-    if (subscription.userId !== userId) {
+    if (Number(subscription.userId) !== Number(userId)) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -45,20 +43,16 @@ export class SubscriptionsService {
 
     const updateData: any = { ...updateSubscriptionDto };
     if (updateSubscriptionDto.renewalDate) {
-      updateData.renewalDate = new Date(updateSubscriptionDto.renewalDate);
+      updateData.renewalDate = new Date(updateSubscriptionDto.renewalDate).toISOString();
     }
 
-    return this.prisma.subscription.update({
-      where: { id },
-      data: updateData,
-    });
+    return this.csvService.update('subscriptions', Number(id), updateData);
   }
 
   async remove(id: string, userId: string) {
     await this.findOne(id, userId);
 
-    return this.prisma.subscription.delete({
-      where: { id },
-    });
+    const deleted = await this.csvService.delete('subscriptions', Number(id));
+    return deleted;
   }
 } 

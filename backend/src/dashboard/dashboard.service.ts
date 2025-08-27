@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { CsvService } from '../common/csv/csv.service';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 
 @Injectable()
 export class DashboardService {
   constructor(
-    private prisma: PrismaService,
+    private csvService: CsvService,
     private exchangeRateService: ExchangeRateService
   ) {}
 
   async getSummary(userId: string) {
-    const subscriptions = await this.prisma.subscription.findMany({
-      where: { userId },
-    });
+    const subscriptions = await this.csvService.findByField('subscriptions', 'userId', Number(userId));
 
     const totalSubscriptions = subscriptions.length;
     
@@ -21,7 +19,7 @@ export class DashboardService {
     const subscriptionsWithUSD = [];
     
     for (const sub of subscriptions) {
-      const priceInUSD = await this.exchangeRateService.convertToUSD(sub.price, sub.currency);
+      const priceInUSD = await this.exchangeRateService.convertToUSD(sub.price as number, sub.currency as string);
       totalMonthlyCostUSD += priceInUSD;
       
       subscriptionsWithUSD.push({
@@ -35,7 +33,8 @@ export class DashboardService {
     // Group by category (convertido a USD)
     const categoryBreakdown: Record<string, number> = {};
     for (const sub of subscriptionsWithUSD) {
-      categoryBreakdown[sub.category] = (categoryBreakdown[sub.category] || 0) + sub.priceInUSD;
+      const category = sub.category as string;
+      categoryBreakdown[category] = (categoryBreakdown[category] || 0) + sub.priceInUSD;
     }
 
     // Get upcoming renewals (next 30 days)
@@ -43,20 +42,23 @@ export class DashboardService {
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
     const upcomingRenewals = subscriptions.filter(sub => {
-      const renewalDate = new Date(sub.renewalDate);
+      const renewalDate = new Date(sub.renewalDate as string);
       return renewalDate <= thirtyDaysFromNow && renewalDate >= new Date();
     });
 
     // Get currency breakdown (en monedas originales)
     const currencyBreakdown = subscriptions.reduce((acc, sub) => {
-      acc[sub.currency] = (acc[sub.currency] || 0) + sub.price;
+      const currency = sub.currency as string;
+      const price = Number(sub.price);
+      acc[currency] = (acc[currency] || 0) + price;
       return acc;
     }, {} as Record<string, number>);
 
     // Currency breakdown convertido a USD
     const currencyBreakdownUSD: Record<string, number> = {};
     for (const sub of subscriptionsWithUSD) {
-      currencyBreakdownUSD[sub.currency] = (currencyBreakdownUSD[sub.currency] || 0) + sub.priceInUSD;
+      const currency = sub.currency as string;
+      currencyBreakdownUSD[currency] = (currencyBreakdownUSD[currency] || 0) + sub.priceInUSD;
     }
 
     return {

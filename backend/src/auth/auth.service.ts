@@ -1,21 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { CsvService } from '../common/csv/csv.service';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
+    private csvService: CsvService,
     private jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const users = await this.csvService.findByField('users', 'email', email);
+    const user = users[0];
 
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && await bcrypt.compare(password, user.password as string)) {
       const { password, ...result } = user;
       return result;
     }
@@ -37,11 +36,10 @@ export class AuthService {
   async register(email: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
+    const user = await this.csvService.create('users', {
+      email,
+      password: hashedPassword,
+      planStatus: 'free',
     });
 
     const { password: _, ...result } = user;

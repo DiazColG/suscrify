@@ -1,26 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { CsvService } from '../common/csv/csv.service';
 
 @Injectable()
 export class PreloadedSubscriptionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private csvService: CsvService) {}
 
   async findAll() {
-    return this.prisma.preloadedSubscription.findMany({
-      orderBy: { name: 'asc' },
-    });
+    const data = await this.csvService.readCsv('preloaded_subscriptions');
+    return data.sort((a, b) => (a.name as string).localeCompare(b.name as string));
   }
 
   async findByCategory(category: string) {
-    return this.prisma.preloadedSubscription.findMany({
-      where: { category },
-      orderBy: { name: 'asc' },
-    });
+    const data = await this.csvService.findByField('preloaded_subscriptions', 'category', category);
+    return data.sort((a, b) => (a.name as string).localeCompare(b.name as string));
   }
 
   async findOne(id: number) {
-    return this.prisma.preloadedSubscription.findUnique({
-      where: { id },
-    });
+    return this.csvService.findById('preloaded_subscriptions', id);
   }
 } 

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { CsvService } from '../common/csv/csv.service';
 
 @Injectable()
 export class ExchangeRateService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private csvService: CsvService) {}
 
   async getAllRates() {
-    return this.prisma.exchangeRate.findMany({
-      orderBy: { fromCurrency: 'asc' }
-    });
+    const rates = await this.csvService.readCsv('exchange_rates');
+    return rates.sort((a, b) => (a.fromCurrency as string).localeCompare(b.fromCurrency as string));
   }
 
   async getRate(fromCurrency: string, toCurrency: string = 'USD'): Promise<number> {
@@ -16,15 +15,14 @@ export class ExchangeRateService {
       return 1.0;
     }
 
-    const rate = await this.prisma.exchangeRate.findUnique({
-      where: { fromCurrency }
-    });
+    const rates = await this.csvService.findByField('exchange_rates', 'fromCurrency', fromCurrency);
+    const rate = rates[0];
 
     if (!rate) {
       throw new Error(`Exchange rate not found for ${fromCurrency} to ${toCurrency}`);
     }
 
-    return rate.rate;
+    return Number(rate.rate);
   }
 
   async convertToUSD(amount: number, fromCurrency: string): Promise<number> {
@@ -60,12 +58,9 @@ export class ExchangeRateService {
   }
 
   async updateRate(fromCurrency: string, newRate: number) {
-    return this.prisma.exchangeRate.update({
-      where: { fromCurrency },
-      data: { 
-        rate: newRate,
-        lastUpdated: new Date()
-      }
+    return this.csvService.update('exchange_rates', fromCurrency, {
+      rate: newRate,
+      lastUpdated: new Date().toISOString()
     });
   }
 }

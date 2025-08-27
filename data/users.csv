@@ -1,0 +1,3 @@
+id,email,password,planStatus,createdAt
+1,admin@suscrify.com,$2b$10$lwjQF6E8w/OEWXxIYSH9MuuxZa2y4TbjocYMp9H15wIbWT/u1BS2G,premium,2024-08-27T00:00:00Z
+2,demo@example.com,$2b$10$f3jQC6tM3Lv0pmUlSPOGVuPWB3WX4KYWhAb9J4vDVMsiUYBIN63MG,free,2024-08-27T01:00:00Z
