@@ -154,10 +154,62 @@ La aplicación incluye 20+ servicios populares:
 2. Base de datos SQLite para simplicidad
 3. Hot reload para desarrollo rápido
 
-### Producción (Recomendado)
+### Deployment en Vercel (Recomendado)
+
+#### Preparación
+1. **Repositorio en GitHub** ✅ (Ya está configurado)
+2. **Archivos de configuración** ✅ (vercel.json creado)
+
+#### Paso a Paso
+
+1. **Crear cuenta en Vercel**
+   - Ir a [vercel.com](https://vercel.com)
+   - Registrarse con GitHub
+
+2. **Importar proyecto**
+   - Clic en "New Project"
+   - Seleccionar repositorio `suscrify`
+   - Vercel detectará automáticamente Next.js
+
+3. **Configurar variables de entorno**
+   ```bash
+   DATABASE_URL=postgresql://user:password@host:port/database
+   JWT_SECRET=tu-jwt-secret-super-seguro-aqui
+   NEXTAUTH_SECRET=tu-nextauth-secret-aqui
+   NEXTAUTH_URL=https://tu-app.vercel.app
+   FRONTEND_URL=https://tu-app.vercel.app
+   ```
+
+4. **Configurar base de datos**
+   - **Opción 1**: Railway PostgreSQL (Gratis)
+     - Crear cuenta en [railway.app](https://railway.app)
+     - Crear proyecto PostgreSQL
+     - Copiar DATABASE_URL a Vercel
+   
+   - **Opción 2**: Neon PostgreSQL (Gratis)
+     - Crear cuenta en [neon.tech](https://neon.tech)
+     - Crear database
+     - Copiar connection string
+
+5. **Deploy automático**
+   - Vercel buildea automáticamente
+   - Frontend en dominio principal
+   - Backend en `/api/*` rutas
+
+### Alternativas de Deployment
 - **Frontend**: Vercel, Netlify
 - **Backend**: Railway, Heroku, Docker
 - **Base de datos**: PostgreSQL, MySQL
+
+### Post-deployment
+1. **Ejecutar migraciones**:
+   ```bash
+   npx prisma migrate deploy
+   ```
+2. **Poblar datos iniciales**:
+   ```bash
+   npx prisma db seed
+   ```
 
 ## 🤝 Contribución
 
