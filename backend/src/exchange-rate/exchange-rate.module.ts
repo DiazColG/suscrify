@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ExchangeRateService } from './exchange-rate.service';
 import { ExchangeRateController } from './exchange-rate.controller';
-import { PrismaModule } from '../common/prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [],
   providers: [ExchangeRateService],
   controllers: [ExchangeRateController],
   exports: [ExchangeRateService]

@@ -49,8 +49,9 @@ export class DashboardService {
     // Get currency breakdown (en monedas originales)
     const currencyBreakdown = subscriptions.reduce((acc, sub) => {
       const currency = sub.currency as string;
-      const price = Number(sub.price);
-      acc[currency] = (acc[currency] || 0) + price;
+      const price = Number(sub.price || 0);
+      const currentAmount = Number(acc[currency] || 0);
+      acc[currency] = currentAmount + price;
       return acc;
     }, {} as Record<string, number>);
 
